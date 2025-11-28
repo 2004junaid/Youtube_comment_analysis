@@ -1,0 +1,7 @@
+google-api-python-client
+pymongo
+python-dotenv
+textblob
+pandas
+matplotlib
+seaborn
