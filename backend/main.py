@@ -1,8 +1,47 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
 from youtube_api import fetch_comments_in_batches
 from db import save_comments, get_comments
 from analysis import process_comments, get_keywords, engagement_rate
 from visualize import plot_keywords, plot_sentiment
 
+# FastAPI app for frontend dashboard
+app = FastAPI()
+
+class RequestData(BaseModel):
+    video_id: str
+    max_comments: int
+
+@app.post("/analyze")
+def analyze_video(data: RequestData):
+    """
+    API endpoint: analyze YouTube comments for a given video.
+    Returns JSON with keywords, sentiment, and engagement.
+    """
+    video_id = data.video_id
+    max_comments = data.max_comments
+
+    total_comments = 0
+    for batch in fetch_comments_in_batches(video_id, batch_size=1000, max_comments=max_comments):
+        save_comments(video_id, batch)
+        total_comments += len(batch)
+
+    all_comments = get_comments(video_id)
+    df_all = process_comments(all_comments)
+
+    keywords_all = get_keywords(df_all)
+    sentiment_avg = df_all['sentiment'].mean()
+    engagement = engagement_rate(df_all)
+
+    return {
+        "video_id": video_id,
+        "total_comments": total_comments,
+        "keywords": keywords_all,
+        "avg_sentiment": sentiment_avg,
+        "engagement_rate": engagement
+    }
+
+# Standalone mode for local debugging with charts
 def run(video_id):
     total_comments = 0
 
@@ -34,8 +73,6 @@ def run(video_id):
     # Final engagement metric
     print("Final engagement rate:", engagement_rate(df_all))
 
-
-
 if __name__ == "__main__":
-    # Replace with a real YouTube video ID
-    run("jNQXAC9IVRw")
+    # Run standalone mode (charts + console output)
+    run("jNQXAC9IVRw")  # Replace with a real YouTube video ID
