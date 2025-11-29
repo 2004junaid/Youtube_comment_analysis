@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from youtube_api import fetch_comments_in_batches
 from db import save_comments, get_comments
@@ -7,6 +8,16 @@ from visualize import plot_keywords, plot_sentiment
 
 # FastAPI app for frontend dashboard
 app = FastAPI()
+
+# Allow React frontend to call backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class RequestData(BaseModel):
     video_id: str
@@ -75,4 +86,4 @@ def run(video_id):
 
 if __name__ == "__main__":
     # Run standalone mode (charts + console output)
-    run("jNQXAC9IVRw")  # Replace with a real YouTube video ID
+    run("Ah_uuTwGOYU")  # Replace with a real YouTube video ID
