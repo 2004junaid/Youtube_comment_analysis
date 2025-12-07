@@ -86,4 +86,4 @@ def run(video_id):
 
 if __name__ == "__main__":
     # Run standalone mode (charts + console output)
-    run("Ah_uuTwGOYU")  # Replace with a real YouTube video ID
+    run("iogcY_4xGjo")  # Replace with a real YouTube video ID
